@@ -1,64 +1,49 @@
 export function hsvToRgb(h, s, v) {
-  s /= 100; v /= 100
-  const c = v * s
-  const x = c * (1 - Math.abs((h / 60) % 2 - 1))
-  const m = v - c
+  h = h / 360; s = s / 100; v = v / 100
+  const i = Math.floor(h * 6), f = h * 6 - i
+  const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s)
   let r, g, b
-  if (h < 60) { r = c; g = x; b = 0 }
-  else if (h < 120) { r = x; g = c; b = 0 }
-  else if (h < 180) { r = 0; g = c; b = x }
-  else if (h < 240) { r = 0; g = x; b = c }
-  else if (h < 300) { r = x; g = 0; b = c }
-  else { r = c; g = 0; b = x }
-  return {
-    r: Math.round((r + m) * 255),
-    g: Math.round((g + m) * 255),
-    b: Math.round((b + m) * 255)
+  switch (i % 6) {
+    case 0: r = v; g = t; b = p; break
+    case 1: r = q; g = v; b = p; break
+    case 2: r = p; g = v; b = t; break
+    case 3: r = p; g = q; b = v; break
+    case 4: r = t; g = p; b = v; break
+    case 5: r = v; g = p; b = q; break
   }
+  return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) }
 }
 
 export function rgbToHsv(r, g, b) {
   r /= 255; g /= 255; b /= 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  const d = max - min
-  let h, s = max === 0 ? 0 : d / max, v = max
-  if (d === 0) h = 0
-  else if (max === r) h = 60 * (((g - b) / d) % 6)
-  else if (max === g) h = 60 * ((b - r) / d + 2)
-  else h = 60 * ((r - g) / d + 4)
-  if (h < 0) h += 360
-  return { h: Math.round(h), s: Math.round(s * 100), v: Math.round(v * 100) }
-}
-
-export function rgbToHex(r, g, b) {
-  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min
+  let h = 0, s = max === 0 ? 0 : d / max, v = max
+  if (d !== 0) {
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break
+      case g: h = ((b - r) / d + 2) / 6; break
+      case b: h = ((r - g) / d + 4) / 6; break
+    }
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) }
 }
 
 export function hexToRgb(hex) {
   hex = hex.replace('#', '')
-  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('')
-  return {
-    r: parseInt(hex.slice(0, 2), 16),
-    g: parseInt(hex.slice(2, 4), 16),
-    b: parseInt(hex.slice(4, 6), 16)
-  }
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2]
+  return { r: parseInt(hex.slice(0,2), 16), g: parseInt(hex.slice(2,4), 16), b: parseInt(hex.slice(4,6), 16) }
 }
 
-export function parseColor(str) {
-  if (!str) return { h: 0, s: 0, v: 100, a: 1 }
-  str = str.trim()
-  // hex
-  const hexMatch = str.match(/^#([0-9a-f]{3,8})$/i)
-  if (hexMatch) {
-    const rgb = hexToRgb('#' + hexMatch[1])
-    const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b)
-    return { ...hsv, a: 1 }
-  }
-  // rgba
-  const rgbaMatch = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/)
-  if (rgbaMatch) {
-    const hsv = rgbToHsv(+rgbaMatch[1], +rgbaMatch[2], +rgbaMatch[3])
-    return { ...hsv, a: rgbaMatch[4] !== undefined ? +rgbaMatch[4] : 1 }
-  }
-  return { h: 0, s: 0, v: 100, a: 1 }
+export function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('')
+}
+
+export function hexToHsv(hex) {
+  const { r, g, b } = hexToRgb(hex)
+  return rgbToHsv(r, g, b)
+}
+
+export function hsvToHex(h, s, v) {
+  const { r, g, b } = hsvToRgb(h, s, v)
+  return rgbToHex(r, g, b)
 }
