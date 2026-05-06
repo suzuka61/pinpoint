@@ -1,0 +1,1 @@
+chrome.runtime.onMessage.addListener((e,a,t)=>{if(e.type==="pinpoint:getState")return chrome.storage.local.get(e.key,r=>{t(r[e.key]||null)}),!0;if(e.type==="pinpoint:setState")return chrome.storage.local.set({[e.key]:e.data},()=>{t({ok:!0})}),!0});
