@@ -1,9 +1,13 @@
 document.getElementById('activate').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
   if (tab) {
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ['src/content/index.js'],
+    chrome.tabs.sendMessage(tab.id, { type: 'activate' }, () => {
+      if (chrome.runtime.lastError) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['src/content/index.js'],
+        })
+      }
     })
   }
   window.close()

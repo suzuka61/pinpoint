@@ -10,9 +10,13 @@ class PinpointApp extends HTMLElement {
     this._mode = 'design'
     this._records = new Map()
     this._undoStack = []
+    this._active = false
   }
 
-  connectedCallback() {
+  activate() {
+    if (this._active) return
+    this._active = true
+
     this.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;pointer-events:none;'
 
     const toolbar = document.createElement('pinpoint-toolbar')
@@ -26,10 +30,23 @@ class PinpointApp extends HTMLElement {
     this._toolbar = toolbar
     this._editor = editor
     this._overview = overview
+    this._hoverOverlay = hoverOverlay
+    this._selectedOverlay = selectedOverlay
 
     activateSelectable()
     this._setupEvents()
     this._restoreState()
+  }
+
+  deactivate() {
+    if (!this._active) return
+    this._active = false
+    deactivateSelectable()
+    this._toolbar?.remove()
+    this._hoverOverlay?.remove()
+    this._selectedOverlay?.remove()
+    this._editor?.remove()
+    this._overview?.remove()
   }
 
   _setupEvents() {
