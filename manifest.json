@@ -3,7 +3,7 @@
   "name": "Pinpoint",
   "description": "AI 编程定位、网页样式编辑与批注工具",
   "version": "0.1.0",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "scripting"],
   "action": {
     "default_popup": "src/popup/popup.html"
   },
