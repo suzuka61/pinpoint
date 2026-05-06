@@ -1,60 +1,54 @@
 import { on, off } from '../core/event-bus.js'
 
-const overlayCSS = `:host {
-  position: fixed;
-  z-index: 2147483646;
-  pointer-events: none;
-}`
+const template = document.createElement('template')
+template.innerHTML = `
+  <style>
+    :host { position: fixed; z-index: 2147483646; pointer-events: none; }
+    .box { position: absolute; border: 2px solid #4a90d9; }
+    .label { position: absolute; top: -22px; left: 0; font: 11px/1.4 monospace;
+      color: #fff; background: #4a90d9; padding: 1px 6px; border-radius: 3px 3px 0 0;
+      white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+    .size { position: absolute; bottom: -20px; right: 0; font: 10px/1.4 monospace;
+      color: #fff; background: #4a90d9; padding: 1px 6px; border-radius: 0 0 3px 3px;
+      white-space: nowrap; }
+  </style>
+  <div class="box"><span class="label"></span><span class="size"></span></div>
+`
 
 class SelectedOverlay extends HTMLElement {
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
-    this.shadowRoot.adoptedStyleSheets = [makeSheet(overlayCSS)]
-    this.boxes = []
+    this.shadowRoot.appendChild(template.content.cloneNode(true))
+    this.box = this.shadowRoot.querySelector('.box')
+    this.label = this.shadowRoot.querySelector('.label')
+    this.size = this.shadowRoot.querySelector('.size')
   }
 
   connectedCallback() {
-    on('pinpoint:selected', this._update)
+    this._onSelected = (e) => this.show(e.detail)
+    on('pinpoint:selected', this._onSelected)
     this.style.cssText = 'position:fixed;z-index:2147483646;pointer-events:none;'
   }
 
   disconnectedCallback() {
-    off('pinpoint:selected', this._update)
+    off('pinpoint:selected', this._onSelected)
   }
 
-  _update = ({ detail }) => {
-    // Clear old boxes
-    for (const b of this.boxes) b.remove()
-    this.boxes = []
+  show({ els, rects }) {
+    if (!rects.length) { this.hide(); return }
+    const r = rects[0]
+    this.box.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;display:block;`
+    const el = els[0]
+    const tag = el.localName
+    const cls = [...el.classList].filter(c => !c.startsWith('pinpoint-')).join('.')
+    this.label.textContent = tag + (cls ? '.' + cls : '')
+    this.size.textContent = `${Math.round(r.width)} × ${Math.round(r.height)}`
+  }
 
-    for (const rect of detail.rects) {
-      const box = this.shadowRoot.appendChild(document.createElement('div'))
-      const sizeLabel = this.shadowRoot.appendChild(document.createElement('span'))
-
-      box.style.cssText = `
-        position:fixed;
-        left:${rect.left}px;top:${rect.top}px;
-        width:${rect.width}px;height:${rect.height}px;
-        border:2px solid rgba(59,130,246,0.9);
-        background:rgba(59,130,246,0.08);
-        pointer-events:none;
-      `
-      sizeLabel.textContent = `${Math.round(rect.width)} × ${Math.round(rect.height)}`
-      sizeLabel.style.cssText = `
-        position:fixed;left:${rect.left}px;top:${rect.top-18}px;
-        font-size:11px;color:#fff;background:rgba(59,130,246,0.9);
-        padding:1px 6px;border-radius:3px;pointer-events:none;
-      `
-      this.boxes.push(box, sizeLabel)
-    }
+  hide() {
+    this.box.style.display = 'none'
   }
 }
 
-function makeSheet(css) {
-  const sheet = new CSSStyleSheet()
-  sheet.replaceSync(css)
-  return sheet
-}
-
-customElements.define('pinpoint-selected', SelectedOverlay)
+customElements.define('pinpoint-selected-overlay', SelectedOverlay)
