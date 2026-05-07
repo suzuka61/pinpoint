@@ -1,29 +1,60 @@
-document.getElementById('activate').addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-  if (!tab) { window.close(); return }
+// Pinpoint Popup
 
-  // 先尝试发消息给已注入的 content script
-  chrome.tabs.sendMessage(tab.id, { type: 'activate' }, (resp) => {
-    if (chrome.runtime.lastError || !resp) {
-      // content script 还没注入，手动注入
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['src/content/index.js'],
-      }, () => {
-        // 注入后再发激活消息
-        setTimeout(() => {
-          chrome.tabs.sendMessage(tab.id, { type: 'activate' })
-        }, 100)
-      })
-    }
-  })
-  window.close()
-})
+const toggleBtn = document.getElementById('toggle-btn');
+const statusDot = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
 
-document.getElementById('deactivate').addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-  if (tab) {
-    chrome.tabs.sendMessage(tab.id, { type: 'deactivate' })
+function updateUI(active) {
+  if (active) {
+    toggleBtn.textContent = '关闭选取';
+    statusDot.classList.add('active');
+    statusText.textContent = '已激活';
+  } else {
+    toggleBtn.textContent = '启动选取';
+    statusDot.classList.remove('active');
+    statusText.textContent = '未激活';
   }
-  window.close()
-})
+}
+
+async function getTab() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab?.id ? tab : null;
+}
+
+async function ensureScript(tabId) {
+  try {
+    const resp = await chrome.tabs.sendMessage(tabId, { type: 'ping' });
+    if (resp?.status === 'ok') return;
+  } catch {}
+
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: ['content/index.js']
+  });
+  await chrome.scripting.insertCSS({
+    target: { tabId },
+    files: ['content/styles/global.css']
+  });
+}
+
+async function checkStatus() {
+  const tab = await getTab();
+  if (!tab) { updateUI(false); return; }
+  try {
+    await ensureScript(tab.id);
+    const resp = await chrome.tabs.sendMessage(tab.id, { type: 'status' });
+    updateUI(!!resp?.active);
+  } catch { updateUI(false); }
+}
+
+toggleBtn.addEventListener('click', async () => {
+  const tab = await getTab();
+  if (!tab) return;
+  try {
+    await ensureScript(tab.id);
+    const resp = await chrome.tabs.sendMessage(tab.id, { type: 'toggle' });
+    updateUI(!!resp?.active);
+  } catch { updateUI(false); }
+});
+
+checkStatus();
