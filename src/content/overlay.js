@@ -5,9 +5,29 @@
 let hoverEl = null;
 let selectedEl = null;
 let onChange = null;
+let eyedropperActive = false;
 
 const hoverOverlay = createOverlay('pinpoint-hover', 'rgba(34,197,94,0.08)', '1px dashed #22c55e');
 const selectOverlay = createOverlay('pinpoint-select', 'rgba(34,197,94,0.05)', '1px dashed #22c55e');
+const OVERLAY_Z_INDEX = 2147483640;
+const SPACING_Z_INDEX = 2147483639;
+
+// Hover tooltip — 显示元素标签 + 尺寸
+const hoverTooltip = document.createElement('div');
+hoverTooltip.style.cssText = `
+  position: fixed;
+  pointer-events: none;
+  z-index: 2147483647;
+  background: #18181b;
+  color: #e4e4e7;
+  font-size: 10px;
+  font-family: system-ui, sans-serif;
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1.4;
+  white-space: nowrap;
+  display: none;
+`;
 
 // 间距可视化 overlay
 const spacingOverlays = {};
@@ -22,7 +42,7 @@ function createOverlay(id, bg, border) {
   el.style.cssText = `
     position: fixed;
     pointer-events: none;
-    z-index: 2147483646;
+    z-index: ${OVERLAY_Z_INDEX};
     border: ${border};
     background: ${bg};
     border-radius: 2px;
@@ -38,7 +58,7 @@ function createSpacingArea(type) {
   el.style.cssText = `
     position: fixed;
     pointer-events: none;
-    z-index: 2147483645;
+    z-index: ${SPACING_Z_INDEX};
     background: ${s.bg};
     display: none;
     text-align: center;
@@ -55,6 +75,7 @@ function init(overlayHost, selectionCallback) {
   onChange = selectionCallback;
   overlayHost.appendChild(hoverOverlay);
   overlayHost.appendChild(selectOverlay);
+  overlayHost.appendChild(hoverTooltip);
 
   for (const type of ['margin', 'padding']) {
     for (const side of ['top', 'right', 'bottom', 'left']) {
@@ -63,22 +84,59 @@ function init(overlayHost, selectionCallback) {
       spacingOverlays[`${type}-${side}`] = area;
     }
   }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+function onScroll() {
+  if (selectedEl) {
+    positionOverlay(selectOverlay, selectedEl);
+    showSpacing(selectedEl);
+  }
+  if (hoverEl && !selectedEl) {
+    positionOverlay(hoverOverlay, hoverEl);
+  }
+}
+
+function setEyedropperActive(active) {
+  eyedropperActive = active;
+  if (active) {
+    hideHover();
+    if (selectOverlay) selectOverlay.style.display = 'none';
+    hideSpacing();
+  } else if (selectedEl) {
+    selectOverlay.style.display = 'block';
+    showSpacing(selectedEl);
+  }
 }
 
 function showHover(el) {
   if (el === selectedEl) return;
+  if (eyedropperActive) return;
   hoverEl = el;
   positionOverlay(hoverOverlay, el);
   hoverOverlay.style.display = 'block';
+  const rect = el.getBoundingClientRect();
+  const tag = el.tagName.toLowerCase();
+  const w = Math.round(rect.width);
+  const h = Math.round(rect.height);
+  const id = el.id ? `#${el.id}` : '';
+  const cls = el.classList.length ? `.${Array.from(el.classList).slice(0, 2).join('.')}` : '';
+  hoverTooltip.textContent = `${tag}${id}${cls}  ${w}×${h}`;
+  hoverTooltip.style.display = 'block';
+  hoverTooltip.style.left = (rect.left - 1) + 'px';
+  hoverTooltip.style.top = (rect.top - 18) + 'px';
 }
 
 function hideHover() {
   hoverEl = null;
   hoverOverlay.style.display = 'none';
+  hoverTooltip.style.display = 'none';
 }
 
 function select(el) {
   selectedEl = el;
+  if (eyedropperActive) return;
   positionOverlay(selectOverlay, el);
   selectOverlay.style.display = 'block';
   hoverOverlay.style.display = 'none';
@@ -166,4 +224,4 @@ function updateSelectedPosition() {
 
 function getSelected() { return selectedEl; }
 
-export { init, showHover, hideHover, select, deselect, getSelected, updateSelectedPosition, updateSpacing };
+export { init, showHover, hideHover, select, deselect, getSelected, updateSelectedPosition, updateSpacing, setEyedropperActive };

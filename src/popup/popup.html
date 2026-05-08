@@ -7,9 +7,17 @@
     body {
       width: 240px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #ffffff;
+      background: #e8e8e8;
       color: #1a1a2e;
+      margin: 0;
+      padding: 8px;
+    }
+    .popup-shell {
+      background: #ffffff;
+      border-radius: 16px;
       padding: 16px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
     h1 {
       font-size: 16px;
@@ -60,6 +68,7 @@
   </style>
 </head>
 <body>
+  <div class="popup-shell">
   <h1>📍 <span>Pinpoint</span></h1>
   <div class="status">
     <div class="dot" id="status-dot"></div>
@@ -70,6 +79,7 @@
     点击「启动选取」开始，再次点击关闭。<br>
     鼠标移到网页元素上会高亮，<br>
     点击选中后可在浮动面板调整样式。
+  </div>
   </div>
 
   <script src="popup.js"></script>

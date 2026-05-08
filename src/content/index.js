@@ -10,8 +10,9 @@ if (window.__pinpoint_loaded) {
   window.__pinpoint_loaded = true;
 }
 
-import { init as overlayInit, showHover, hideHover, select, deselect, updateSelectedPosition } from './overlay.js';
+import { init as overlayInit, showHover, hideHover, select, deselect, updateSelectedPosition, setEyedropperActive } from './overlay.js';
 import { create as panelCreate, open as panelOpen, close as panelClose } from './panel.js';
+import { undo as undoChange, redo as redoChange, canUndo, canRedo } from './changes.js';
 
 let active = false;
 let initialized = false;
@@ -35,7 +36,7 @@ function activate() {
     initialized = true;
     overlayHost = document.createElement('div');
     overlayHost.id = 'pinpoint-overlay-host';
-    overlayHost.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;pointer-events:none;';
+    overlayHost.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;z-index:2147483646;pointer-events:none;';
     document.body.appendChild(overlayHost);
     overlayInit(overlayHost, onSelectionChange);
     panelCreate();
@@ -92,6 +93,30 @@ function onKeyDown(e) {
     deselect();
     panelClose();
   }
+  // Ctrl+Z 撤销
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    if (canUndo()) {
+      e.preventDefault();
+      const item = undoChange();
+      if (item) {
+        updateSelectedPosition();
+        const el = document.querySelector(item.selector);
+        if (el) panelOpen(el);
+      }
+    }
+  }
+  // Ctrl+Shift+Z 重做
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+    if (canRedo()) {
+      e.preventDefault();
+      const item = redoChange();
+      if (item) {
+        updateSelectedPosition();
+        const el = document.querySelector(item.selector);
+        if (el) panelOpen(el);
+      }
+    }
+  }
 }
 
 function onSelectionChange(el) {
@@ -110,6 +135,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
   if (msg.type === 'status') {
     sendResponse({ active });
+  }
+  if (msg.type === 'eyedropperActive') {
+    setEyedropperActive(msg.active);
+    sendResponse({ ok: true });
   }
   return true;
 });

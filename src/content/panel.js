@@ -2,7 +2,7 @@
  * Pinpoint 样式调整面板 — Figma/Inspecta 风格
  */
 
-import { add } from './changes.js';
+import { add, undo, redo, canUndo, canRedo } from './changes.js';
 import { generateSelector, getElementDescription } from './selector.js';
 import { copyToClipboard } from './exporter.js';
 import { updateSpacing } from './overlay.js';
@@ -74,7 +74,7 @@ function create() {
   panelHost.id = 'pinpoint-panel-host';
   panelHost.style.cssText = `
     position: fixed; top: 60px; right: 20px; width: 280px;
-    z-index: 2147483645; pointer-events: none;
+    z-index: 2147483647; pointer-events: none;
   `;
   shadow = panelHost.attachShadow({ mode: 'closed' });
   shadow.innerHTML = buildHTML();
@@ -102,13 +102,13 @@ ${buildCSS()}
 
     <!-- 内容 -->
     <div class="section" id="pp-text-section" style="display:none">
-      <div class="section-title">内容</div>
+      <div class="section-title" data-toggle>内容 <span class="section-chevron">▾</span></div>
       <textarea class="field-textarea" id="pp-text-content" rows="3" placeholder="输入文字…"></textarea>
     </div>
 
     <!-- 图片 -->
     <div class="section" id="pp-image-section" style="display:none">
-      <div class="section-title">图片</div>
+      <div class="section-title" data-toggle>图片 <span class="section-chevron">▾</span></div>
       <div class="image-row">
         <div class="image-thumb" id="pp-img-preview"></div>
         <span class="image-label" id="pp-img-src-label">无</span>
@@ -118,7 +118,7 @@ ${buildCSS()}
 
     <!-- 排版 -->
     <div class="section">
-      <div class="section-title">排版</div>
+      <div class="section-title" data-toggle>排版 <span class="section-chevron">▾</span></div>
       <div class="prop-row">
         <span class="prop-label">字体</span>
         <select class="prop-select" id="pp-ff"></select>
@@ -192,7 +192,7 @@ ${buildCSS()}
       </div>
     </div>
     <div class="section">
-      <div class="section-title">尺寸</div>
+      <div class="section-title" data-toggle>尺寸 <span class="section-chevron">▾</span></div>
       <div class="prop-row-2">
         <div class="prop-half">
           <span class="prop-label-sm">宽度</span>
@@ -217,7 +217,7 @@ ${buildCSS()}
 
     <!-- 间距 -->
     <div class="section">
-      <div class="section-title">间距</div>
+      <div class="section-title" data-toggle>间距 <span class="section-chevron">▾</span></div>
       <div class="spacing-group-label">内间距</div>
       <div class="prop-row-4">
         <div class="prop-quarter"><span class="prop-label-xs">上</span><input class="prop-input-xs" type="number" id="pp-pt" step="1"></div>
@@ -236,7 +236,7 @@ ${buildCSS()}
 
     <!-- 外观 -->
     <div class="section">
-      <div class="section-title">外观</div>
+      <div class="section-title" data-toggle>外观 <span class="section-chevron">▾</span></div>
       <div class="prop-row">
         <span class="prop-label">背景色</span>
         <div class="color-row">
@@ -265,7 +265,7 @@ ${buildCSS()}
 
     <!-- 边框 -->
     <div class="section">
-      <div class="section-title">边框</div>
+      <div class="section-title" data-toggle>边框 <span class="section-chevron">▾</span></div>
       <div class="prop-row-2">
         <div class="prop-half">
           <span class="prop-label-sm">宽度</span>
@@ -296,6 +296,8 @@ ${buildCSS()}
   </div>
 
   <div class="actions">
+    <button class="btn btn-undo" id="pp-undo" title="撤销 (Ctrl+Z)">↩</button>
+    <button class="btn btn-redo" id="pp-redo" title="重做 (Ctrl+Shift+Z)">↪</button>
     <button class="btn btn-reset" id="pp-reset">重置</button>
     <button class="btn btn-export" id="pp-export">导出指令</button>
   </div>
@@ -347,7 +349,11 @@ function buildCSS() {
 /* Section */
 .section { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; }
 .section:last-of-type { border-bottom: none; }
-.section-title { font-size: 11px; font-weight: 600; color: #71717a; margin-bottom: 8px; letter-spacing: 0.02em; }
+.section-title { font-size: 11px; font-weight: 600; color: #71717a; margin-bottom: 8px; letter-spacing: 0.02em; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
+.section-title:hover { color: #18181b; }
+.section-chevron { font-size: 10px; transition: transform 0.15s; }
+.section.collapsed .section-chevron { transform: rotate(-90deg); }
+.section.collapsed > *:not(.section-title) { display: none !important; }
 
 /* Property rows */
 .prop-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
@@ -464,7 +470,9 @@ function buildCSS() {
 .btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .btn-export { background: #e94560; color: white; }
 .btn-export:hover { background: #d63d56; }
-.btn-reset { background: #f4f4f5; color: #71717a; }
+.btn-undo, .btn-redo { background: #f4f4f5; color: #71717a; flex: 0.4; font-size: 14px; }
+.btn-undo:hover, .btn-redo:hover { background: #e4e4e7; color: #18181b; }
+.btn-reset { background: #f4f4f5; color: #71717a; flex: 0.7; }
 .btn-reset:hover { background: #e4e4e7; color: #18181b; }
 
 /* Scrollbar */
@@ -479,6 +487,17 @@ function buildCSS() {
 function bindEvents() {
   $('pp-close').addEventListener('click', close);
   wireDrag();
+
+  // 折叠 section
+  shadow.querySelectorAll('[data-toggle]').forEach(title => {
+    title.addEventListener('click', () => {
+      title.parentElement.classList.toggle('collapsed');
+    });
+  });
+
+  // 撤销
+  $('pp-undo').addEventListener('click', handleUndo);
+  $('pp-redo').addEventListener('click', handleRedo);
 
   wireNumber('pp-width', 'width', 'px');
   wireNumber('pp-height', 'height', 'px');
@@ -682,6 +701,20 @@ function wireImageUpload() {
     $('pp-img-src-label').textContent = '[已上传]';
     fileInput.value = '';
   });
+}
+
+function handleUndo() {
+  const item = undo();
+  if (!item || !currentEl) return;
+  open(currentEl);
+  updateSpacing();
+}
+
+function handleRedo() {
+  const item = redo();
+  if (!item || !currentEl) return;
+  open(currentEl);
+  updateSpacing();
 }
 
 function wireDrag() {
