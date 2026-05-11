@@ -66,7 +66,7 @@ nav {
   display: flex; align-items: center; gap: 10px;
   text-decoration: none;
 }
-.nav-logo img { height: 28px; width: 28px; border-radius: 6px; }
+.nav-logo img { height: 28px; width: auto; border-radius: 0; }
 .nav-logo span {
   font-weight: 600; font-size: 17px;
   color: var(--color-charcoal-primary);
@@ -181,10 +181,39 @@ nav {
   background: var(--color-sunburst-yellow);
   animation: float 4.5s ease-in-out infinite 0.3s;
 }
+.deco-5 {
+  width: 40px; height: 40px; top: 15%; left: 25%;
+  background: var(--color-ember-orange);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+  animation: floatStar 5s ease-in-out infinite, spinStar 20s linear infinite;
+}
+.deco-6 {
+  width: 28px; height: 28px; top: 40%; right: 20%;
+  background: var(--color-sunburst-yellow);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+  animation: floatStar 4s ease-in-out infinite 0.8s, spinStar 25s linear infinite reverse;
+}
+.deco-7 {
+  width: 22px; height: 22px; bottom: 30%; left: 35%;
+  background: var(--color-sky-blue);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+  animation: floatStar 3.5s ease-in-out infinite 1.5s, spinStar 18s linear infinite;
+}
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-16px); }
+}
+@keyframes floatStar {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(9deg); }
+}
+@keyframes spinStar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ── Demo Preview ── */
@@ -524,8 +553,7 @@ footer {
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="#">
-      <img src="images/pinpoint-logo.png" alt="Pinpoint">
-      <span>Pinpoint</span>
+      <img src="images/pinpoint-logo.svg" alt="Pinpoint">
     </a>
     <div class="nav-links">
       <a href="#flow">工作流程</a>
@@ -545,13 +573,16 @@ footer {
   <div class="hero-deco deco-2"></div>
   <div class="hero-deco deco-3"></div>
   <div class="hero-deco deco-4"></div>
+  <div class="hero-deco deco-5"></div>
+  <div class="hero-deco deco-6"></div>
+  <div class="hero-deco deco-7"></div>
 
   <div class="container">
     <div class="hero-badge"><span class="dot"></span> Chrome 扩展 · 免费使用</div>
     <h1>看一眼，<span class="accent">改一处</span><br>指令自动生成</h1>
     <p>在已部署网页上直接调整样式，一键导出结构化修改指令，粘贴到 AI 编码工具自动改代码。</p>
     <div class="hero-buttons">
-      <a href="https://github.com/suzuka61/pinpoint/releases/download/V1.0/pinpoint.zip" class="btn btn-pill-dark">安装 Pinpoint</a>
+      <a href="https://github.com/suzuka61/pinpoint/releases/download/V1.0/pinpoint.v1.0.zip" class="btn btn-pill-dark">安装 Pinpoint</a>
       <a href="#flow" class="btn btn-pill-light">了解工作流程</a>
     </div>
 
@@ -760,7 +791,7 @@ footer {
       <div class="cta-deco cta-deco-2"></div>
       <h2>从看到改，<span>一步到位</span></h2>
       <p>安装 Pinpoint，让样式修正如标注设计稿一样自然。</p>
-      <a href="https://github.com/suzuka61/pinpoint/releases/download/V1.0/pinpoint.zip" class="btn btn-pill-dark" target="_blank">立即下载</a>
+      <a href="https://github.com/suzuka61/pinpoint/releases/download/V1.0/pinpoint.v1.0.zip" class="btn btn-pill-dark" target="_blank">立即下载</a>
     </div>
   </div>
 </section>

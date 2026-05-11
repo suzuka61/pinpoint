@@ -16,6 +16,7 @@ const staticFiles = [
   ['src/popup/popup.html', 'popup/popup.html'],
   ['src/popup/popup.js', 'popup/popup.js'],
   ['src/content/styles/global.css', 'content/styles/global.css'],
+  ['前端/images/pinpoint-icon-p.svg', 'icons/pinpoint-icon-p.svg'],
 ];
 
 for (const [src, dest] of staticFiles) {
@@ -46,18 +47,19 @@ if (isWatch) {
 }
 
 function generateIcons() {
-  const sizes = [16, 48, 128];
   const iconDir = path.join(outDir, 'icons');
   fs.mkdirSync(iconDir, { recursive: true });
 
-  const { execSync } = require('child_process');
+  const srcDir = path.join(__dirname, 'icons');
+  const sizes = [16, 48, 128];
   for (const size of sizes) {
-    const pngPath = path.join(iconDir, `icon${size}.png`);
-    try {
-      execSync(`python3 ${path.join(__dirname, 'gen-icon.py')} ${size} ${pngPath}`);
-    } catch (e) {
-      fs.writeFileSync(pngPath, Buffer.alloc(0));
-      console.log(`⚠️  icon${size}.png 生成失败，请手动替换`);
+    const src = path.join(srcDir, `icon${size}.png`);
+    const dest = path.join(iconDir, `icon${size}.png`);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+    } else {
+      fs.writeFileSync(dest, Buffer.alloc(0));
+      console.log(`⚠️  icon${size}.png not found in icons/, run gen-icon.py first`);
     }
   }
 }

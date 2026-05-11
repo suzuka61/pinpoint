@@ -40,33 +40,8 @@ const FALLBACK_FONTS = [
 
 async function loadFontList() {
   if (fontListCache) return fontListCache;
-
-  if (!window.queryLocalFonts) {
-    fontListCache = FALLBACK_FONTS;
-    return FALLBACK_FONTS;
-  }
-
-  try {
-    const fonts = await queryLocalFonts();
-    const seen = new Set();
-    const list = [{ value: '', label: '继承' }];
-    for (const f of fonts) {
-      if (!seen.has(f.family)) {
-        seen.add(f.family);
-        list.push({ value: f.family, label: f.family });
-      }
-    }
-    list.sort((a, b) => {
-      if (!a.value) return -1;
-      if (!b.value) return 1;
-      return a.label.localeCompare(b.label);
-    });
-    fontListCache = list;
-    return list;
-  } catch {
-    fontListCache = FALLBACK_FONTS;
-    return FALLBACK_FONTS;
-  }
+  fontListCache = FALLBACK_FONTS;
+  return FALLBACK_FONTS;
 }
 
 function create() {
@@ -113,7 +88,8 @@ ${buildCSS()}
         <div class="image-thumb" id="pp-img-preview"></div>
         <span class="image-label" id="pp-img-src-label">无</span>
       </div>
-      <input type="file" id="pp-img-file" accept="image/*" class="file-upload-input">
+      <input type="file" id="pp-img-file" accept="image/*" style="display:none">
+      <button class="btn-upload" id="pp-img-upload-btn">选择上传本地图片替换</button>
     </div>
 
     <!-- 排版 -->
@@ -455,11 +431,22 @@ function buildCSS() {
   border: none;
   color: inherit;
   font: inherit;
-  cursor: pointer;
   padding: 0;
   margin: 0;
 }
 .file-upload-input:hover { background: #e4e4e7; border-color: #e94560; color: #e94560; }
+.btn-upload {
+  width: 100%;
+  padding: 6px;
+  background: #f4f4f5;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #71717a;
+  cursor: pointer;
+  text-align: center;
+}
+.btn-upload:hover { background: #e4e4e7; border-color: #e94560; color: #e94560; }
 
 /* Spacing */
 .spacing-group-label { font-size: 10px; color: #a1a1aa; font-weight: 600; margin-bottom: 4px; }
@@ -659,7 +646,9 @@ function wireTextContent() {
 
 function wireImageUpload() {
   const fileInput = $('pp-img-file');
+  const uploadBtn = $('pp-img-upload-btn');
   if (!fileInput) return;
+  if (uploadBtn) uploadBtn.addEventListener('click', () => fileInput.click());
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
