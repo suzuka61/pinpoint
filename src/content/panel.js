@@ -1,5 +1,7 @@
 /**
- * Pinpoint 样式调整面板 — Figma/Inspecta 风格
+ * Pinpoint 样式调整面板 — Figma Inspect 风格
+ * 视觉：白底、极细线、属性-值分离、紧凑间距
+ * 功能：内容/图片/排版/尺寸/布局(flex+grid)/间距/外观/边框
  */
 
 import { add, undo, redo, canUndo, canRedo } from './changes.js';
@@ -70,18 +72,16 @@ ${buildCSS()}
       <span class="header-tag" id="pp-el-tag">元素</span>
       <span class="header-selector" id="pp-selector"></span>
     </div>
-    <button class="panel-close" id="pp-close">&times;</button>
+    <button class="panel-close" id="pp-close" title="关闭">&times;</button>
   </div>
 
   <div class="scroll-area">
 
-    <!-- 内容 -->
     <div class="section" id="pp-text-section" style="display:none">
       <div class="section-title" data-toggle>内容 <span class="section-chevron">▾</span></div>
       <textarea class="field-textarea" id="pp-text-content" rows="3" placeholder="输入文字…"></textarea>
     </div>
 
-    <!-- 图片 -->
     <div class="section" id="pp-image-section" style="display:none">
       <div class="section-title" data-toggle>图片 <span class="section-chevron">▾</span></div>
       <div class="image-row">
@@ -92,7 +92,6 @@ ${buildCSS()}
       <button class="btn-upload" id="pp-img-upload-btn">选择上传本地图片替换</button>
     </div>
 
-    <!-- 排版 -->
     <div class="section">
       <div class="section-title" data-toggle>排版 <span class="section-chevron">▾</span></div>
       <div class="prop-row">
@@ -167,6 +166,7 @@ ${buildCSS()}
         </div>
       </div>
     </div>
+
     <div class="section">
       <div class="section-title" data-toggle>尺寸 <span class="section-chevron">▾</span></div>
       <div class="prop-row-2">
@@ -191,7 +191,132 @@ ${buildCSS()}
       </div>
     </div>
 
-    <!-- 间距 -->
+    <!-- 布局 — flex / grid 控制 -->
+    <div class="section">
+      <div class="section-title" data-toggle>布局 <span class="section-chevron">▾</span></div>
+      <div class="prop-row">
+        <span class="prop-label">显示</span>
+        <select class="prop-select" id="pp-display">
+          <option value="">继承</option>
+          <option value="block">块 block</option>
+          <option value="inline-block">行内块</option>
+          <option value="inline">行内</option>
+          <option value="flex">Flex</option>
+          <option value="inline-flex">行内 Flex</option>
+          <option value="grid">Grid</option>
+          <option value="inline-grid">行内 Grid</option>
+          <option value="none">隐藏</option>
+        </select>
+      </div>
+
+      <div id="pp-flex-block">
+        <div class="subsection-label">Flex 容器</div>
+        <div class="prop-row-2">
+          <div class="prop-half">
+            <span class="prop-label-sm">方向</span>
+            <select class="prop-select-sm" id="pp-flex-direction">
+              <option value="row">行 →</option>
+              <option value="row-reverse">行 ←</option>
+              <option value="column">列 ↓</option>
+              <option value="column-reverse">列 ↑</option>
+            </select>
+          </div>
+          <div class="prop-half">
+            <span class="prop-label-sm">换行</span>
+            <select class="prop-select-sm" id="pp-flex-wrap">
+              <option value="nowrap">不换</option>
+              <option value="wrap">换行</option>
+              <option value="wrap-reverse">反向换</option>
+            </select>
+          </div>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">主轴</span>
+          <select class="prop-select" id="pp-justify-content">
+            <option value="flex-start">起点</option>
+            <option value="center">居中</option>
+            <option value="flex-end">终点</option>
+            <option value="space-between">两端</option>
+            <option value="space-around">环绕</option>
+            <option value="space-evenly">均匀</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">交叉轴</span>
+          <select class="prop-select" id="pp-align-items">
+            <option value="stretch">拉伸</option>
+            <option value="flex-start">起点</option>
+            <option value="center">居中</option>
+            <option value="flex-end">终点</option>
+            <option value="baseline">基线</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">多行</span>
+          <select class="prop-select" id="pp-align-content">
+            <option value="stretch">拉伸</option>
+            <option value="flex-start">起点</option>
+            <option value="center">居中</option>
+            <option value="flex-end">终点</option>
+            <option value="space-between">两端</option>
+            <option value="space-around">环绕</option>
+          </select>
+        </div>
+        <div class="prop-row-2">
+          <div class="prop-half">
+            <span class="prop-label-sm">行间距</span>
+            <input class="prop-input" type="number" id="pp-row-gap" step="1" min="0">
+          </div>
+          <div class="prop-half">
+            <span class="prop-label-sm">列间距</span>
+            <input class="prop-input" type="number" id="pp-column-gap" step="1" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div id="pp-grid-block">
+        <div class="subsection-label">Grid 容器</div>
+        <div class="prop-row-2">
+          <div class="prop-half">
+            <span class="prop-label-sm">列</span>
+            <input class="prop-input" type="text" id="pp-grid-cols" placeholder="1fr 1fr">
+          </div>
+          <div class="prop-half">
+            <span class="prop-label-sm">行</span>
+            <input class="prop-input" type="text" id="pp-grid-rows" placeholder="auto">
+          </div>
+        </div>
+        <div class="prop-row-2">
+          <div class="prop-half">
+            <span class="prop-label-sm">行间距</span>
+            <input class="prop-input" type="number" id="pp-grid-row-gap" step="1" min="0">
+          </div>
+          <div class="prop-half">
+            <span class="prop-label-sm">列间距</span>
+            <input class="prop-input" type="number" id="pp-grid-column-gap" step="1" min="0">
+          </div>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">水平</span>
+          <select class="prop-select" id="pp-justify-items">
+            <option value="stretch">拉伸</option>
+            <option value="start">起点</option>
+            <option value="center">居中</option>
+            <option value="end">终点</option>
+          </select>
+        </div>
+        <div class="prop-row">
+          <span class="prop-label">垂直</span>
+          <select class="prop-select" id="pp-align-items-grid">
+            <option value="stretch">拉伸</option>
+            <option value="start">起点</option>
+            <option value="center">居中</option>
+            <option value="end">终点</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="section">
       <div class="section-title" data-toggle>间距 <span class="section-chevron">▾</span></div>
       <div class="spacing-group-label">内间距</div>
@@ -210,11 +335,10 @@ ${buildCSS()}
       </div>
     </div>
 
-    <!-- 外观 -->
     <div class="section">
       <div class="section-title" data-toggle>外观 <span class="section-chevron">▾</span></div>
       <div class="prop-row">
-        <span class="prop-label">背景色</span>
+        <span class="prop-label">背景</span>
         <div class="color-row">
           <div class="color-swatch-wrap">
             <div class="color-swatch" id="pp-bg-swatch"></div>
@@ -239,7 +363,6 @@ ${buildCSS()}
       </div>
     </div>
 
-    <!-- 边框 -->
     <div class="section">
       <div class="section-title" data-toggle>边框 <span class="section-chevron">▾</span></div>
       <div class="prop-row-2">
@@ -280,102 +403,164 @@ ${buildCSS()}
 </div>`;
 }
 
+/**
+ * Figma Inspect 风格 CSS
+ * - 白色面板 + 极细 1px 分隔线 (#eaeaeb)
+ * - 标签：11px / #8c8c8c 灰，标签在左，控件在右
+ * - 控件：白底 + 1px 边框 + 圆角 4px
+ * - 主色：Figma 蓝 #0d99ff
+ * - 紧凑：section 内 8px 行距，section 间 1px 分隔
+ */
 function buildCSS() {
-  const CHEVRON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2371717a' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+  const CHEVRON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c8c8c' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+  const CLOSE_ICON = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 2l6 6M8 2l-6 6' stroke='%238c8c8c' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`;
 
   return `
-:host { font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", sans-serif; }
+:host {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  color: #2c2c2c;
+}
 :host *, :host *::before, :host *::after { box-sizing: border-box; }
 
 .panel {
   pointer-events: auto;
   background: #ffffff;
-  color: #1a1a1a;
   max-height: 80vh;
   display: none;
   flex-direction: column;
   font-size: 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.04),
+    0 4px 16px rgba(0,0,0,0.08),
+    0 1px 2px rgba(0,0,0,0.04);
   overflow: hidden;
   width: 280px;
+  -webkit-font-smoothing: antialiased;
 }
 .panel.open { display: flex; }
 
+/* Header — 白底 + 底部细线，标签小写感 */
 .panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 10px 8px 12px;
+  border-bottom: 1px solid #eaeaeb;
   flex-shrink: 0;
   cursor: grab;
   user-select: none;
-  background: #f5f5f5;
+  background: #ffffff;
 }
 .panel-header:active { cursor: grabbing; }
-.header-info { flex: 1; min-width: 0; }
-.header-tag { font-size: 13px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #111827; }
-.header-selector { font-size: 10px; color: #9ca3af; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-.panel-close { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 18px; padding: 2px 8px; border-radius: 6px; flex-shrink: 0; line-height: 1; }
-.panel-close:hover { background: #e5e7eb; color: #374151; }
+.header-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; }
+.header-tag { font-size: 12px; font-weight: 600; color: #2c2c2c; white-space: nowrap; }
+.header-selector { font-size: 10px; color: #8c8c8c; font-family: "SF Mono", "Menlo", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.panel-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background-image: ${CLOSE_ICON};
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.panel-close:hover { background-color: #f0f0f0; }
 
 .scroll-area { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.scroll-area::-webkit-scrollbar { width: 6px; }
+.scroll-area::-webkit-scrollbar-track { background: transparent; }
+.scroll-area::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
+.scroll-area::-webkit-scrollbar-thumb:hover { background: #c8c8c8; }
 
-/* Section */
-.section { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; }
+/* Section — 1px 细线分隔，padding 收紧 */
+.section { padding: 10px 12px; border-bottom: 1px solid #eaeaeb; }
 .section:last-of-type { border-bottom: none; }
-.section-title { font-size: 11px; font-weight: 600; color: #71717a; margin-bottom: 8px; letter-spacing: 0.02em; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
-.section-title:hover { color: #18181b; }
-.section-chevron { font-size: 10px; transition: transform 0.15s; }
+.section-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.section-title:hover { color: #2c2c2c; }
+.section-chevron { font-size: 9px; color: #b0b0b0; transition: transform 0.15s; }
 .section.collapsed .section-chevron { transform: rotate(-90deg); }
 .section.collapsed > *:not(.section-title) { display: none !important; }
 
-/* Property rows */
+/* 子分组标签 — flex/grid 容器提示 */
+.subsection-label {
+  font-size: 10px;
+  color: #b0b0b0;
+  margin: 8px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #f0f0f0;
+  font-weight: 500;
+}
+.subsection-label:first-of-type { margin-top: 0; }
+
+/* Property rows — 标签左 / 控件右，flex 间距 8 */
 .prop-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .prop-row:last-child { margin-bottom: 0; }
 .prop-row-2 { display: flex; gap: 6px; margin-bottom: 6px; }
 .prop-row-4 { display: flex; gap: 4px; margin-bottom: 6px; }
-.prop-half { flex: 1; display: flex; align-items: center; gap: 4px; min-width: 0; }
+.prop-half { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .prop-quarter { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
-.prop-label { width: 40px; flex-shrink: 0; font-size: 11px; color: #71717a; }
-.prop-label-sm { width: 32px; flex-shrink: 0; font-size: 11px; color: #71717a; }
-.prop-label-xs { font-size: 10px; color: #71717a; text-align: center; }
+.prop-label { width: 40px; flex-shrink: 0; font-size: 11px; color: #8c8c8c; font-weight: 500; }
+.prop-label-sm { width: 32px; flex-shrink: 0; font-size: 11px; color: #8c8c8c; font-weight: 500; }
+.prop-label-xs { font-size: 9px; color: #b0b0b0; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; }
 
-/* Inputs */
+/* Inputs — 白底 + 细边框 + 紧凑 */
 .prop-input {
   flex: 1;
-  background: #f4f4f5;
-  border: 1px solid #d4d4d8;
-  color: #18181b;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #2c2c2c;
   padding: 4px 6px;
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: 4px;
+  font-size: 12px;
   min-width: 0;
+  height: 26px;
+  font-family: inherit;
 }
-.prop-input:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 2px rgba(233,69,96,0.12); }
+.prop-input:hover { border-color: #b8b8b8; }
+.prop-input:focus { outline: none; border-color: #0d99ff; box-shadow: 0 0 0 2px rgba(13,153,255,0.12); }
+
 .prop-input-xs {
   width: 100%;
-  background: #f4f4f5;
-  border: 1px solid #d4d4d8;
-  color: #18181b;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #2c2c2c;
   padding: 3px 4px;
   border-radius: 4px;
   font-size: 11px;
   text-align: center;
+  height: 24px;
+  font-family: inherit;
 }
-.prop-input-xs:focus { outline: none; border-color: #e94560; }
+.prop-input-xs:hover { border-color: #b8b8b8; }
+.prop-input-xs:focus { outline: none; border-color: #0d99ff; box-shadow: 0 0 0 2px rgba(13,153,255,0.12); }
 
-/* Selects */
+/* Selects — 白底 + 箭头 */
 .prop-select, .prop-select-sm {
   flex: 1;
-  background: #f4f4f5;
-  border: 1px solid #d4d4d8;
-  color: #18181b;
-  padding: 4px 24px 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #2c2c2c;
+  padding: 4px 22px 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
@@ -385,87 +570,132 @@ function buildCSS() {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  height: 26px;
+  font-family: inherit;
 }
-.prop-select:focus, .prop-select-sm:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 2px rgba(233,69,96,0.12); }
+.prop-select-sm { font-size: 11px; height: 26px; }
+.prop-select:hover, .prop-select-sm:hover { border-color: #b8b8b8; }
+.prop-select:focus, .prop-select-sm:focus { outline: none; border-color: #0d99ff; box-shadow: 0 0 0 2px rgba(13,153,255,0.12); }
 
 /* Textarea */
 .field-textarea {
   width: 100%;
-  background: #f4f4f5;
-  border: 1px solid #d4d4d8;
-  color: #18181b;
-  padding: 8px;
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #2c2c2c;
+  padding: 6px 8px;
+  border-radius: 4px;
   font-size: 12px;
   resize: vertical;
   min-height: 56px;
   box-sizing: border-box;
+  font-family: inherit;
 }
-.field-textarea:focus { outline: none; border-color: #e94560; box-shadow: 0 0 0 2px rgba(233,69,96,0.12); }
+.field-textarea:hover { border-color: #b8b8b8; }
+.field-textarea:focus { outline: none; border-color: #0d99ff; box-shadow: 0 0 0 2px rgba(13,153,255,0.12); }
 
 /* Color */
 .color-row { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
 .color-swatch-wrap { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
-.color-swatch { width: 22px; height: 22px; border-radius: 4px; border: 1.5px solid #d4d4d8; cursor: pointer; pointer-events: none; }
+.color-swatch {
+  width: 22px; height: 22px; border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer; pointer-events: none;
+  background-image:
+    linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
 .color-picker { position: absolute; left: 0; top: 0; width: 22px; height: 22px; padding: 0; border: none; cursor: pointer; opacity: 0.01; }
-.color-hex { flex: 1; min-width: 0; background: #f4f4f5; border: 1px solid #d4d4d8; color: #18181b; padding: 4px 6px; border-radius: 6px; font-size: 10px; overflow: hidden; }
-.color-hex:focus { outline: none; border-color: #e94560; }
+.color-hex {
+  flex: 1; min-width: 0;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #2c2c2c;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: "SF Mono", "Menlo", monospace;
+  height: 26px;
+  text-transform: lowercase;
+}
+.color-hex:hover { border-color: #b8b8b8; }
+.color-hex:focus { outline: none; border-color: #0d99ff; box-shadow: 0 0 0 2px rgba(13,153,255,0.12); }
 
 /* Image */
 .image-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.image-thumb { width: 36px; height: 36px; border-radius: 6px; background: #f4f4f5; background-size: cover; background-position: center; border: 1px solid #d4d4d8; flex-shrink: 0; }
-.image-label { font-size: 11px; color: #71717a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-upload-input {
-  width: 100%;
-  padding: 6px;
-  background: #f4f4f5;
-  border: 1px dashed #d4d4d8;
-  color: #71717a;
-  border-radius: 6px;
-  font-size: 11px;
-  cursor: pointer;
-  text-align: center;
+.image-thumb {
+  width: 40px; height: 40px;
+  border-radius: 4px;
+  background: #f5f5f5;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
-.file-upload-input::-webkit-file-upload-button {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  padding: 0;
-  margin: 0;
-}
-.file-upload-input:hover { background: #e4e4e7; border-color: #e94560; color: #e94560; }
+.image-label { font-size: 11px; color: #8c8c8c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn-upload {
   width: 100%;
   padding: 6px;
-  background: #f4f4f5;
-  border: 1px solid #d4d4d8;
-  border-radius: 6px;
+  background: #ffffff;
+  border: 1px dashed #d4d4d4;
+  border-radius: 4px;
   font-size: 11px;
-  color: #71717a;
+  color: #8c8c8c;
   cursor: pointer;
   text-align: center;
+  height: 28px;
+  font-family: inherit;
 }
-.btn-upload:hover { background: #e4e4e7; border-color: #e94560; color: #e94560; }
+.btn-upload:hover { background: #f8f8f8; border-color: #0d99ff; color: #0d99ff; }
 
 /* Spacing */
-.spacing-group-label { font-size: 10px; color: #a1a1aa; font-weight: 600; margin-bottom: 4px; }
+.spacing-group-label { font-size: 9px; color: #b0b0b0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
 .spacing-group-label:not(:first-of-type) { margin-top: 6px; }
 
 /* Actions */
-.actions { padding: 10px 14px; display: flex; gap: 8px; flex-shrink: 0; border-top: 1px solid #e5e7eb; }
-.btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
-.btn-export { background: #e94560; color: white; }
-.btn-export:hover { background: #d63d56; }
-.btn-undo, .btn-redo { background: #f4f4f5; color: #71717a; flex: 0.4; font-size: 14px; }
-.btn-undo:hover, .btn-redo:hover { background: #e4e4e7; color: #18181b; }
-.btn-reset { background: #f4f4f5; color: #71717a; flex: 0.7; }
-.btn-reset:hover { background: #e4e4e7; color: #18181b; }
-
-/* Scrollbar */
-.scroll-area::-webkit-scrollbar { width: 4px; }
-.scroll-area::-webkit-scrollbar-track { background: transparent; }
-.scroll-area::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 2px; }
+.actions {
+  padding: 8px 10px;
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  border-top: 1px solid #eaeaeb;
+  background: #fafafa;
+}
+.btn {
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 28px;
+  font-family: inherit;
+}
+.btn-export {
+  flex: 1;
+  background: #0d99ff;
+  color: white;
+}
+.btn-export:hover { background: #0a85e0; }
+.btn-export:active { background: #0974cc; }
+.btn-undo, .btn-redo {
+  background: #ffffff;
+  color: #8c8c8c;
+  flex: 0.4;
+  font-size: 13px;
+  border: 1px solid #e0e0e0;
+}
+.btn-undo:hover, .btn-redo:hover { background: #f5f5f5; color: #2c2c2c; border-color: #b8b8b8; }
+.btn-reset {
+  background: #ffffff;
+  color: #8c8c8c;
+  flex: 0.6;
+  border: 1px solid #e0e0e0;
+}
+.btn-reset:hover { background: #f5f5f5; color: #2c2c2c; border-color: #b8b8b8; }
 `;
 }
 
@@ -517,6 +747,9 @@ function bindEvents() {
   wireOffset();
   wireTextContent();
   wireImageUpload();
+
+  // 布局
+  wireLayout();
 
   $('pp-reset').addEventListener('click', () => { if (currentEl) open(currentEl); });
   $('pp-export').addEventListener('click', () => copyToClipboard());
@@ -659,10 +892,8 @@ function wireImageUpload() {
 
     if (el.tagName === 'IMG') {
       const oldSrc = el.src;
-      // 清除 srcset/sizes，它们会覆盖 src
       el.removeAttribute('srcset');
       el.removeAttribute('sizes');
-      // 如果在 <picture> 内，禁用 <source>
       const picture = el.closest('picture');
       if (picture) {
         picture.querySelectorAll('source').forEach(s => {
@@ -671,7 +902,6 @@ function wireImageUpload() {
         });
       }
       el.src = objectUrl;
-      // 防止 React/Vue 等框架重渲染把 src 重置回去
       const observer = new MutationObserver(() => {
         if (el.src !== objectUrl && !el.getAttribute('srcset')) {
           el.src = objectUrl;
@@ -690,6 +920,47 @@ function wireImageUpload() {
     $('pp-img-src-label').textContent = '[已上传]';
     fileInput.value = '';
   });
+}
+
+/**
+ * 布局（display / flex / grid）事件绑定
+ */
+function wireLayout() {
+  // display — 改变时切换 flex / grid 子块的可见性
+  const display = $('pp-display');
+  display.addEventListener('change', () => {
+    if (!currentEl) return;
+    const val = display.value;
+    const old = getComputedStyle(currentEl).display;
+    if (!val || old === val) return;
+    record('display', old, val);
+    currentEl.style.display = val;
+    updateLayoutBlocks(val);
+  });
+
+  // flex
+  wireSelect('pp-flex-direction', 'flex-direction');
+  wireSelect('pp-flex-wrap', 'flex-wrap');
+  wireSelect('pp-justify-content', 'justify-content');
+  wireSelect('pp-align-items', 'align-items');
+  wireSelect('pp-align-content', 'align-content');
+  wireNumber('pp-row-gap', 'row-gap', 'px');
+  wireNumber('pp-column-gap', 'column-gap', 'px');
+
+  // grid
+  wireTextInput('pp-grid-cols', 'grid-template-columns');
+  wireTextInput('pp-grid-rows', 'grid-template-rows');
+  wireNumber('pp-grid-row-gap', 'row-gap', 'px');
+  wireNumber('pp-grid-column-gap', 'column-gap', 'px');
+  wireSelect('pp-justify-items', 'justify-items');
+  wireSelect('pp-align-items-grid', 'align-items');
+}
+
+function updateLayoutBlocks(displayVal) {
+  const flexBlock = $('pp-flex-block');
+  const gridBlock = $('pp-grid-block');
+  if (flexBlock) flexBlock.style.display = (displayVal === 'flex' || displayVal === 'inline-flex') ? '' : 'none';
+  if (gridBlock) gridBlock.style.display = (displayVal === 'grid' || displayVal === 'inline-grid') ? '' : 'none';
 }
 
 function handleUndo() {
@@ -809,7 +1080,55 @@ async function open(el) {
   const bsEl = $('pp-bs');
   if (bsEl) bsEl.value = cs.boxShadow === 'none' ? '' : cs.boxShadow;
 
+  // 布局
+  setLayout(cs);
+
   panel.classList.add('open');
+}
+
+/**
+ * 读取并填入布局属性
+ */
+function setLayout(cs) {
+  const display = $('pp-display');
+  if (display) display.value = cs.display;
+
+  // flex
+  setSelect('pp-flex-direction', cs.flexDirection);
+  setSelect('pp-flex-wrap', cs.flexWrap);
+  setSelect('pp-justify-content', cs.justifyContent);
+  setSelect('pp-align-items', cs.alignItems);
+  setSelect('pp-align-content', cs.alignContent);
+  setNum('pp-row-gap', parseFloat(cs.rowGap));
+  setNum('pp-column-gap', parseFloat(cs.columnGap));
+
+  // grid
+  setVal('pp-grid-cols', cs.gridTemplateColumns === 'none' ? '' : cs.gridTemplateColumns);
+  setVal('pp-grid-rows', cs.gridTemplateRows === 'none' ? '' : cs.gridTemplateRows);
+  setNum('pp-grid-row-gap', parseFloat(cs.rowGap));
+  setNum('pp-grid-column-gap', parseFloat(cs.columnGap));
+  setSelect('pp-justify-items', cs.justifyItems);
+  setSelect('pp-align-items-grid', cs.alignItems);
+
+  // 切换子块可见性
+  updateLayoutBlocks(cs.display);
+}
+
+function setSelect(id, val) {
+  const el = $(id);
+  if (!el) return;
+  // select 元素用 "" 表示"未匹配/继承"，但布局属性大部分是关键字，可直接 set
+  // 如果 val 存在就尝试设置
+  if (val && Array.from(el.options).some(o => o.value === val)) {
+    el.value = val;
+  } else {
+    el.value = el.options[0]?.value || '';
+  }
+}
+
+function setVal(id, val) {
+  const el = $(id);
+  if (el) el.value = val;
 }
 
 function close() {
